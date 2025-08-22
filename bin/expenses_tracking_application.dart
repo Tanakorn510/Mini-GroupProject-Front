@@ -44,7 +44,7 @@ void main() async {
     print("Welcome, $username");
     while (true){
       
-      print("===== Menu =====");
+      print("========== Expense Tracking App ==========");
       print("1. All expenses");
       print("2. Today's expense");
       print("3. Search expense");
