@@ -56,23 +56,23 @@ void main() async {
 
       switch (choice) {
         case '1':
-          print("Fetching all expenses...");
+          
           // Call function to fetch all expenses
           break;
         case '2':
-          print("Fetching today's expense...");
+          
           // Call function to fetch today's expense
           break;
         case '3':
-          print("Searching for an expense...");
+          
           // Call function to search for an expense
           break;
         case '4':
-          print("Adding a new expense...");
+          
           // Call function to add a new expense
           break;
         case '5':
-          print("Deleting an expense...");
+          
           // Call function to delete an expense
           break;
         case '6':
