@@ -76,7 +76,7 @@ void main() async {
           // Call function to delete an expense
           break;
         case '6':
-          print("Exiting...");
+          print("----- Bye -----");
           return; 
         default:
           print("Invalid choice, please try again.");
