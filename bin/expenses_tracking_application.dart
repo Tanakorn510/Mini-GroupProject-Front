@@ -2,16 +2,23 @@
 import 'package:http/http.dart' as http;
 // for stdin
 import 'dart:io';
-
+import 'dart:convert';
 
 void main() async {
+  await login();
+}
+
+
+//==========================================================
+// login function
+//==========================================================
+Future<void> login() async {
   print("===== Login =====");
   // Get username and password
   stdout.write("Username: ");
   String? username = stdin.readLineSync()?.trim();
   stdout.write("Password: ");
   String? password = stdin.readLineSync()?.trim();
-
   // ตรวจสอบ username ต้องเป็นตัวอักษร (ไทย/อังกฤษ)
   final usernameRegExp = RegExp(r'^[a-zA-Zก-๙]+$');
   // ตรวจสอบ password ต้องเป็นตัวเลข
@@ -32,19 +39,35 @@ void main() async {
     return;
   }
 
+
   final body = {"username": username, "password": password};
   final url = Uri.parse('http://localhost:3000/login');
-  final response = await http.post(
-    url,
-    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-    body: body
-);
-
+  final response = await http.post(url, body: body);
+  // note: if body is Map, it is encoded by "application/x-www-form-urlencoded" not JSON
   if (response.statusCode == 200) {
-    print("Welcome, $username");
-    while (true){
-      
+    // the response.body is String
+     final result = jsonDecode(response.body) as Map<String, dynamic>;
+     choose(result['id'].toString(), result['username'].toString());
+    
+    // await getprofileAll(result['id'].toString());
+    // print(result['id']);
+   
+  } else if (response.statusCode == 401 || response.statusCode == 500) {
+    final result = response.body;
+    print(result);
+  } else {
+    print("Unknown error");
+  }
+}
+
+//==========================================================
+// Function to decide what to do after login
+//==========================================================
+Future<void> choose(String userId, username) async {
+  while (true){
+      print("");
       print("========== Expense Tracking App ==========");
+      print("Welcome $username");
       print("1. All expenses");
       print("2. Today's expense");
       print("3. Search expense");
@@ -56,11 +79,11 @@ void main() async {
 
       switch (choice) {
         case '1':
-          
+          await showExpenses(userId, onlyToday: false);
           // Call function to fetch all expenses
           break;
         case '2':
-          
+          await showExpenses(userId, onlyToday: true);
           // Call function to fetch today's expense
           break;
         case '3':
@@ -83,13 +106,51 @@ void main() async {
       }
       
     }
-    
+}
+
+
+//==========================================================
+// add feature here
+//==========================================================
+
+//==========================================================
+// Function to fetch all expenses
+//==========================================================
+Future<void> showExpenses(String userId, {bool onlyToday = false}) async {
+  final url = Uri.parse('http://localhost:3000/user/$userId');
+  final response = await http.get(url);
+
+  if (response.statusCode == 200) {
+    final result = jsonDecode(response.body) as List<dynamic>;
+    final now = DateTime.now();
+    int total = 0;
+    print("");
+    print(onlyToday
+        
+        ? "---------- Today's Expenses -----------"
+        : "---------- All Expenses -----------");
+
+    for (var expense in result) {
+      final date = DateTime.parse(expense['date']).toLocal();
+
+      // ถ้า onlyToday = true → filter แค่ของวันนี้
+      if (!onlyToday ||
+          (date.year == now.year &&
+              date.month == now.month &&
+              date.day == now.day)) {
+        final formattedDate =
+            "${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute}";
+        print("${expense['id']}. ${expense['item']} : ${expense['paid']}฿ : $formattedDate");
+        total += expense['paid'] as int;
+      }
+    }
+    if (total == 0) {
+      print(onlyToday ? "No expenses today" : "No expenses found");
+    }
+    print("Total expenses${onlyToday ? ' today' : ''} = ${total}฿");
   } else if (response.statusCode == 401 || response.statusCode == 500) {
-     // the response.body is String
-    final result = response.body;
-    print(result);
+    print(response.body);
   } else {
     print("Unknown error");
   }
 }
-
