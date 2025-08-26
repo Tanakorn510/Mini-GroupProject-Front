@@ -91,11 +91,11 @@ Future<void> choose(String userId, username) async {
           // Call function to search for an expense
           break;
         case '4':
-          
+          await add_expenses(userId);
           // Call function to add a new expense
           break;
         case '5':
-          
+          await delete_expenses(userId);
           // Call function to delete an expense
           break;
         case '6':
@@ -112,6 +112,50 @@ Future<void> choose(String userId, username) async {
 //==========================================================
 // add feature here
 //==========================================================
+Future<void> add_expenses(String userId) async {
+
+  stdout.write("Enter item name: ");
+  String item = stdin.readLineSync()!;
+
+  stdout.write("Enter amount paid: ");
+  int paid = int.parse(stdin.readLineSync()!);
+
+  final url = Uri.parse("http://localhost:3000/add_expenses/$userId"); // change if needed
+  final response = await http.post(
+    url,
+    headers: {"Content-Type": "application/json"},
+    body: jsonEncode({
+      "user_id": userId,
+      "item": item,
+      "paid": paid,
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    print("✅ Expense added: ${response.body}");
+  } else {
+    print("❌ Failed to add expense: ${response.body}");
+  }
+}
+
+Future<void> delete_expenses(String userId) async {
+
+  stdout.write("Enter expense ID to delete: ");
+  int expenseId = int.parse(stdin.readLineSync()!);
+
+  final url = Uri.parse("http://localhost:3000/delete_expenses/$userId");
+  final response = await http.delete(
+    url,
+    headers: {"Content-Type": "application/json"},
+    body: jsonEncode({"id": expenseId}),
+  );
+
+  if (response.statusCode == 200) {
+    print("✅ Expense deleted: ${response.body}");
+  } else {
+    print("❌ Failed to delete expense: ${response.body}");
+  }
+}
 
 //==========================================================
 // Function to fetch all expenses
