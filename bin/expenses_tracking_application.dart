@@ -91,11 +91,11 @@ Future<void> choose(String userId, username) async {
           // Call function to search for an expense
           break;
         case '4':
-          await add_expenses(userId);
+          await addExpenses(userId);
           // Call function to add a new expense
           break;
         case '5':
-          await delete_expenses(userId);
+          await deleteExpenses(userId);
           // Call function to delete an expense
           break;
         case '6':
@@ -112,35 +112,37 @@ Future<void> choose(String userId, username) async {
 //==========================================================
 // add feature here
 //==========================================================
-Future<void> add_expenses(String userId) async {
-
-  stdout.write("Enter item name: ");
+Future<void> addExpenses(String userId) async {
+  print("===== Add new item =====");
+  stdout.write("Item: ");
   String item = stdin.readLineSync()!;
 
-  stdout.write("Enter amount paid: ");
+  stdout.write("Paid: ");
   int paid = int.parse(stdin.readLineSync()!);
 
-  final url = Uri.parse("http://localhost:3000/add_expenses/$userId"); // change if needed
+  final url = Uri.parse("http://localhost:3000/add_expenses/$userId"); 
   final response = await http.post(
     url,
     headers: {"Content-Type": "application/json"},
     body: jsonEncode({
-      "user_id": userId,
+      
       "item": item,
-      "paid": paid,
+      "paid": paid
     }),
   );
 
   if (response.statusCode == 200) {
-    print("✅ Expense added: ${response.body}");
+    print("Inserted!");
   } else {
-    print("❌ Failed to add expense: ${response.body}");
+    print(" Failed to add expense: ${response.body}");
   }
 }
-
-Future<void> delete_expenses(String userId) async {
-
-  stdout.write("Enter expense ID to delete: ");
+// ==========================================================
+// delete feature here
+//==========================================================
+Future<void> deleteExpenses(String userId) async {
+  print("===== Delete an item =====");
+  stdout.write("Item id: ");
   int expenseId = int.parse(stdin.readLineSync()!);
 
   final url = Uri.parse("http://localhost:3000/delete_expenses/$userId");
@@ -151,9 +153,9 @@ Future<void> delete_expenses(String userId) async {
   );
 
   if (response.statusCode == 200) {
-    print("✅ Expense deleted: ${response.body}");
+    print("Deleted!");
   } else {
-    print("❌ Failed to delete expense: ${response.body}");
+    print(" Failed to delete expense: ${response.body}");
   }
 }
 
