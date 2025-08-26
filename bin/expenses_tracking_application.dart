@@ -117,7 +117,7 @@ Future<void> choose(String userId, username) async {
 // Function to fetch all expenses
 //==========================================================
 Future<void> showExpenses(String userId, {bool onlyToday = false}) async {
-  final url = Uri.parse('http://localhost:3000/user/$userId');
+  final url = Uri.parse('http://localhost:3000/show_expense/$userId');
   final response = await http.get(url);
 
   if (response.statusCode == 200) {
