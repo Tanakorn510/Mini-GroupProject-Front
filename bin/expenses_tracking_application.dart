@@ -87,7 +87,7 @@ Future<void> choose(String userId, username) async {
           // Call function to fetch today's expense
           break;
         case '3':
-          
+          await searchExpenses(userId);
           // Call function to search for an expense
           break;
         case '4':
@@ -156,6 +156,49 @@ Future<void> deleteExpenses(String userId) async {
     print("Deleted!");
   } else {
     print(" Failed to delete expense: ${response.body}");
+  }
+}
+
+//==========================================================
+// search funtion
+//==========================================================
+Future<void> searchExpenses(String userId) async {
+  print("");
+  stdout.write("Item to search: ");
+  String? keyword = stdin.readLineSync()?.trim();
+
+  if (keyword == null || keyword.isEmpty) {
+    print("Search keyword cannot be empty.");
+    return;
+  }
+
+  final url = Uri.parse('http://localhost:3000/show_expense/$userId');
+  final response = await http.get(url);
+
+  if (response.statusCode == 200) {
+    final allExpenses = jsonDecode(response.body) as List<dynamic>;
+    
+    // Filter expenses based on the keyword (case-insensitive)
+    final foundItems = allExpenses.where((expense) {
+      final item = expense['item'].toString().toLowerCase();
+      return item.contains(keyword.toLowerCase());
+    }).toList();
+
+    if (foundItems.isEmpty) {
+      print("No item: $keyword");
+    } else {
+      for (var expense in foundItems) {
+         final date = DateTime.parse(expense['date']).toLocal();
+         // ใช้ format date and time ให้เหมือนกับในรูปตัวอย่าง
+         final formattedDateTime = 
+            "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')} " +
+            "${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}:${date.second.toString().padLeft(2, '0')}.${date.millisecond.toString().padLeft(3, '0')}";
+
+        print("${expense['id']}. ${expense['item']} : ${expense['paid']}฿ : $formattedDateTime");
+      }
+    }
+  } else {
+    print("Failed to fetch expenses: ${response.body}");
   }
 }
 
