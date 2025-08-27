@@ -114,18 +114,32 @@ Future<void> choose(String userId, username) async {
 //==========================================================
 Future<void> addExpenses(String userId) async {
   print("===== Add new item =====");
-  stdout.write("Item: ");
-  String item = stdin.readLineSync()!;
+  String? item;
+  while (item == null || item.trim().isEmpty) {
+    stdout.write("Item: ");
+    item = stdin.readLineSync();
+    if (item == null || item.trim().isEmpty) {
+      print("Please enter a valid item name!.");
+    }
+  }
 
-  stdout.write("Paid: ");
-  int paid = int.parse(stdin.readLineSync()!);
+  int? paid;
+  while (paid == null) {
+    stdout.write("Paid: ");
+    String? paidInput = stdin.readLineSync();
+    try {
+      paid = int.parse(paidInput!);
+    } catch (e) {
+      print("");
+      print("Please enter a valid number for 'Paid'!.");
+    }
+  }
 
   final url = Uri.parse("http://localhost:3000/add_expenses/$userId"); 
   final response = await http.post(
     url,
     headers: {"Content-Type": "application/json"},
     body: jsonEncode({
-      
       "item": item,
       "paid": paid
     }),
@@ -142,8 +156,17 @@ Future<void> addExpenses(String userId) async {
 //==========================================================
 Future<void> deleteExpenses(String userId) async {
   print("===== Delete an item =====");
-  stdout.write("Item id: ");
-  int expenseId = int.parse(stdin.readLineSync()!);
+  int? expenseId;
+  while (expenseId == null) {
+    stdout.write("Item id: ");
+    String? idInput = stdin.readLineSync();
+    try {
+      expenseId = int.parse(idInput!);
+    } catch (e) {
+      print("");
+      print("Please enter a valid number for 'Item id'!.");
+    }
+  }
 
   final url = Uri.parse("http://localhost:3000/delete_expenses/$userId");
   final response = await http.delete(
